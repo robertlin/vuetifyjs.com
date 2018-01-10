@@ -24,17 +24,23 @@ function route (path, view) {
 }
 
 const routes = paths.map(path => {
-  return route(`/${path.shift()}`, path)
+  return route(`${path.shift()}`, path)
 })
-
-routes.push({ path: '*', redirect: '/404' })
 
 export function createRouter () {
     const router = new Router({
       base: release ? `/releases/${release}` : __dirname,
       mode: release ? 'hash' : 'history',
       scrollBehavior,
-      routes
+      routes: [
+        {
+          path: '/:lang',
+          component: () => import(/* webpackChunkName: "routes" */'@/components/views/RootView.vue'),
+          props: true,
+          children: routes
+        },
+        { path: '*', redirect: '/en/' }
+      ]
     })
 
     // Send a pageview to Google Analytics
